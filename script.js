@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('overlay');
     const btnOpen = document.getElementById('btn-open');
     const mainContent = document.getElementById('main-invitation');
-    const bgMusic = document.getElementById('bgMusic');
+    const bagMusic = document.getElementById('bagMusic');
     const musicControl = document.getElementById('music-control');
     const musicIcon = document.getElementById('music-icon');
     
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('floating-nav').classList.remove('hidden');
         
         // Play Music
-        bgMusic.play().catch(error => {
+        bagMusic.play().catch(error => {
             console.log("Autoplay prevented. User interaction required.");
         });
 
@@ -45,12 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
     musicControl.addEventListener('click', () => {
         const visualizer = document.getElementById('visualizer');
         if (isPlaying) {
-            bgMusic.pause();
+            bagMusic.pause();
             musicControl.style.animationPlayState = 'paused';
             visualizer.querySelectorAll('span').forEach(s => s.style.animationPlayState = 'paused');
             musicIcon.setAttribute('data-lucide', 'music-2');
         } else {
-            bgMusic.play();
+            bagMusic.play();
             musicControl.style.animationPlayState = 'running';
             visualizer.querySelectorAll('span').forEach(s => s.style.animationPlayState = 'running');
             musicIcon.setAttribute('data-lucide', 'music');
@@ -132,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 
 function handleScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
@@ -260,11 +261,41 @@ function showToast(message) {
         toast.classList.add('hidden');
     }, 3000);
 }
-// Parallax Effect
+// Parallax Effect (Scroll & Mouse)
 window.addEventListener('scroll', () => {
     const scrolled = window.scrollY;
     document.querySelectorAll('.parallax-prop').forEach((el, index) => {
-        const speed = (index + 1) * 0.2;
+        const speed = (index + 1) * 0.15;
         el.style.transform = `translateY(${scrolled * speed}px) rotate(${(index % 2 === 0 ? -15 : 15)}deg)`;
+    });
+});
+
+document.addEventListener('mousemove', (e) => {
+    const x = (window.innerWidth / 2 - e.pageX) / 30;
+    const y = (window.innerHeight / 2 - e.pageY) / 30;
+    
+    // Parallax Props movement
+    document.querySelectorAll('.parallax-prop').forEach((el, index) => {
+        const factor = (index + 1) * 0.8;
+        el.style.transform = `translate(${x * factor}px, ${y * factor}px) rotate(${(index % 2 === 0 ? -15 : 15)}deg)`;
+    });
+    
+    // Subtle tilt for couple cards
+    document.querySelectorAll('.couple-card').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const cardX = e.clientX - rect.left - rect.width / 2;
+        const cardY = e.clientY - rect.top - rect.height / 2;
+        
+        // Only if mouse is near the card (within 250px)
+        const distance = Math.sqrt(cardX * cardX + cardY * cardY);
+        if (distance < 250) {
+            const rotateX = -cardY / 15;
+            const rotateY = cardX / 15;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.02)`;
+            card.style.boxShadow = `${-rotateY}px ${rotateX}px 30px rgba(0,0,0,0.15)`;
+        } else {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0) scale(1)`;
+            card.style.boxShadow = `0 10px 30px rgba(0,0,0,0.1)`;
+        }
     });
 });
